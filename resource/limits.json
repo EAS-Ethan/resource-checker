@@ -1,0 +1,62 @@
+{
+  "chart_totals": {
+    "limit_cpu": 5.5,
+    "limit_memory": 5120,
+    "request_cpu": 3,
+    "request_memory": 4096
+  },
+  "deployments": {
+    "ns1": {
+      "totals": {
+        "limit_cpu": 4,
+        "limit_memory": 3072,
+        "request_cpu": 2,
+        "request_memory": 2048
+      },
+      "containers": {
+        "limit_cpu": 2,
+        "limit_memory": 2048,
+        "request_cpu": 1,
+        "request_memory": 1024
+      },
+      "initContainers": {
+        "limit_cpu": 2,
+        "limit_memory": 2048,
+        "request_cpu": 1,
+        "request_memory": 1024
+      },
+      "sidecars": {
+        "limit_cpu": 0.30,
+        "limit_memory": 1024,
+        "request_cpu": 0.25,
+        "request_memory": 512
+      }
+    },
+    "ns2": {
+      "totals": {
+        "limit_cpu": 4,
+        "limit_memory": 3072,
+        "request_cpu": 2,
+        "request_memory": 2048
+      },
+      "containers": {
+        "limit_cpu": 2,
+        "limit_memory": 2048,
+        "request_cpu": 1,
+        "request_memory": 1024
+      },
+      "initContainers": {
+        "limit_cpu": 2,
+        "limit_memory": 2048,
+        "request_cpu": 1,
+        "request_memory": 1024
+      },
+      "sidecars": {
+        "limit_cpu": 0.30,
+        "limit_memory": 1024,
+        "request_cpu": 0.25,
+        "request_memory": 512
+      }
+    }
+  }
+}

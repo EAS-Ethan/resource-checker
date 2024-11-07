@@ -50,7 +50,7 @@ pipeline {
                         curl -X POST \
                         -H "Content-Type: application/json" \
                         -d '{"parameters": {"docker_tag": "${BUILD_NUMBER}"}}' \
-                        http://your-spinnaker-gate:8084/pipelines/trigger
+                        https://spinnaker.dev.clusters.easlab.co.uk:8084/pipelines/trigger
                     """
                 }
             }

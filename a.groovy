@@ -5,20 +5,10 @@ import org.yaml.snakeyaml.Yaml
 //  command used in testing 
 //  docker run --name groov -e env=prod --rm -v "$PWD":/home/groovy/scripts -w /home/groovy/scripts groovy groovy a.groovy
 
-// Add at the beginning
-def yamlFile = System.getenv('YAML_FILE') ?: 'out.yaml'
-def limitsFile = System.getenv('LIMITS_FILE') ?: 'resource/limits.json'
-
-// Add better error handling
-try {
-    resourceLimits = jsonLoad.parseText((limitsFile as File).text)
-} catch (Exception e) {
-    println "Error loading resource limits file: ${e.message}"
-    System.exit(1)
-}
-
 //load resource json using environment variable (change for pipeline)
 def jsonLoad = new JsonSlurper()
+resourceLimits = jsonLoad.parseText(("resource/limits.json" as File).text)
+
 
 // Load yaml file
 Yaml parser = new Yaml()
@@ -33,7 +23,7 @@ def Map values = [
     deployments: [:]
 ]
 
-def docs = parser.loadAll((yamlFile as File).text) as Object
+def docs = parser.loadAll(('out.yaml' as File).text) as Object
 
 for (Object dep : docs) {
     if (dep.kind == 'Deployment') {
@@ -205,3 +195,20 @@ def returnCPU(cpu) {
         return Integer.parseInt(cpu)
      }
 }
+
+println "Starting resource validation..."
+
+values.deployments.each { key, val ->
+    println "Validating namespace: ${key}"
+    compareDeploymentValues(values, resourceLimits, key, "totals")
+    compareDeploymentValues(values, resourceLimits, key, "containers")
+    compareDeploymentValues(values, resourceLimits, key, "initContainers")
+    compareDeploymentValues(values, resourceLimits, key, "sidecars")
+}
+
+println "Total chart CPU: ${values.chart_totals.limit_cpu} (Limit: ${resourceLimits.chart_totals.limit_cpu})"
+println "Total chart Memory: ${values.chart_totals.limit_memory} (Limit: ${resourceLimits.chart_totals.limit_memory})"
+println "Total chart Request CPU: ${values.chart_totals.request_cpu} (Limit: ${resourceLimits.chart_totals.request_cpu})"
+println "Total chart Request Memory: ${values.chart_totals.request_memory} (Limit: ${resourceLimits.chart_totals.request_memory})"
+
+println "Resource validation completed successfully!"

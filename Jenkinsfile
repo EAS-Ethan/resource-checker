@@ -3,26 +3,22 @@ pipeline {
     
     environment {
         SPINNAKER_GATE = "https://gate.spinnaker.dev.clusters.easlab.co.uk"
-        GITHUB_TOKEN = credentials('github-oauth-token')
+        SPINNAKER_DECK = "https://deck.spinnaker.dev.clusters.easlab.co.uk"
+        GITHUB_TOKEN = credentials('github-oauth-token')  // Create this in Jenkins
     }
     
     stages {
         stage('Trigger Spinnaker Pipeline') {
             steps {
                 script {
-                    // First get a session cookie
                     sh """
-                        # Get session cookie
-                        COOKIE=\$(curl -k -s -i -X GET \
-                        -H 'Authorization: token ${GITHUB_TOKEN}' \
-                        ${SPINNAKER_GATE}/login \
-                        | grep -i 'set-cookie' | cut -d' ' -f2)
-                        
-                        # Trigger pipeline with session cookie
                         curl -k -v -X POST \
                         -H 'Content-Type: application/json' \
                         -H 'Accept: application/json' \
-                        -H 'Cookie: \${COOKIE}' \
+                        -H 'Origin: ${SPINNAKER_DECK}' \
+                        -H 'Referer: ${SPINNAKER_DECK}' \
+                        -H 'Authorization: token ${GITHUB_TOKEN}' \
+                        -H 'X-SPINNAKER-USER: jenkins' \
                         --data '{
                             "application": "e-test",
                             "type": "manual",

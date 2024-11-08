@@ -19,19 +19,19 @@ pipeline {
             }
         }
         
-        stage('Build & Push') {
-            steps {
-                script {
-                    // Build
-                    sh "docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ."
-                    sh "docker tag ${DOCKER_IMAGE}:${BUILD_NUMBER} ${DOCKER_IMAGE}:latest"
+        // stage('Build & Push') {
+        //     steps {
+        //         script {
+        //             // Build
+        //             sh "docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ."
+        //             sh "docker tag ${DOCKER_IMAGE}:${BUILD_NUMBER} ${DOCKER_IMAGE}:latest"
                     
-                    // Push
-                    sh "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
-                    sh "docker push ${DOCKER_IMAGE}:latest"
-                }
-            }
-        }
+        //             // Push
+        //             sh "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
+        //             sh "docker push ${DOCKER_IMAGE}:latest"
+        //         }
+        //     }
+        // }
         
         stage('Trigger Spinnaker Pipeline') {
             steps {
@@ -49,7 +49,7 @@ pipeline {
     
     post {
         always {
-            sh 'docker logout'
+            // sh 'docker logout'
             cleanWs()
         }
     }

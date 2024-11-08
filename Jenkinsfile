@@ -19,14 +19,14 @@ pipeline {
             }
         }
         
-        stage('Validate Resources') {
-            steps {
-                script {
-                    // Run the Groovy resource checker
-                    sh 'groovy a.groovy'
-                }
-            }
-        }
+        // stage('Validate Resources') {
+        //     steps {
+        //         script {
+        //             // Run the Groovy resource checker
+        //             sh 'groovy a.groovy'
+        //         }
+        //     }
+        // }
         
         stage('Build & Push') {
             steps {

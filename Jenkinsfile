@@ -37,8 +37,8 @@ pipeline {
                 script {
                     // First, test if we can reach the endpoint
                     sh """
-                        echo "Testing connection to Spinnaker..."
-                        curl -k -v https://spinnaker.dev.clusters.easlab.co.uk:8084/health
+                        echo "Testing connection to Spinnaker Gate API..."
+                        curl -k -v https://gate.spinnaker.dev.clusters.easlab.co.uk:8084/health
                     """
                 }
             }
@@ -56,7 +56,7 @@ pipeline {
                             "docker_tag": "${BUILD_NUMBER}"
                             }
                         }' \
-                        https://spinnaker.dev.clusters.easlab.co.uk:8084/pipelines/trigger
+                        https://gate.spinnaker.dev.clusters.easlab.co.uk:8084/pipelines/trigger
                     """
                 }
             }

@@ -32,6 +32,17 @@ pipeline {
         //         }
         //     }
         // }
+        stage('Test Spinnaker Connection') {
+            steps {
+                script {
+                    // First, test if we can reach the endpoint
+                    sh """
+                        echo "Testing connection to Spinnaker..."
+                        curl -k -v https://spinnaker.dev.clusters.easlab.co.uk:8084/health
+                    """
+                }
+            }
+        }
         
         stage('Trigger Spinnaker Pipeline') {
             steps {
@@ -39,7 +50,12 @@ pipeline {
                     sh """
                         curl -k -v -X POST \
                         -H "Content-Type: application/json" \
-                        -d '{"application": "e-test", "parameters": {"docker_tag": "${BUILD_NUMBER}"}}' \
+                        --data '{
+                          "application": "e-test",
+                          "parameters": {
+                            "docker_tag": "${BUILD_NUMBER}"
+                            }
+                        }' \
                         https://spinnaker.dev.clusters.easlab.co.uk:8084/pipelines/trigger
                     """
                 }

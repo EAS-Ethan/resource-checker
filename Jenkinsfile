@@ -24,7 +24,14 @@ pipeline {
                 script {
                     sh """
                         echo "Testing connection to Spinnaker Gate API..."
-                        curl -k -v https://deck.spinnaker.dev.clusters.easlab.co.uk/gate/applications/e-test
+                        # Try direct IP
+                        curl -k -v http://10.42.231.176:8084/applications/e-test
+                        
+                        # Try service name
+                        curl -k -v http://spin-gate.spinnaker.svc.cluster.local:8084/applications/e-test
+                        
+                        # Try with internal DNS
+                        curl -k -v http://spin-gate:8084/applications/e-test
                     """
                 }
             }
@@ -44,7 +51,7 @@ pipeline {
                                 "docker_tag": "${BUILD_NUMBER}"
                             }
                         }' \
-                        https://deck.spinnaker.dev.clusters.easlab.co.uk/gate/pipelines/e-test/trigger
+                        http://spin-gate.spinnaker:8084/pipelines/e-test/trigger
                     """
                 }
             }

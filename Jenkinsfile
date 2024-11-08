@@ -24,14 +24,11 @@ pipeline {
                 script {
                     sh """
                         echo "Testing connection to Spinnaker Gate API..."
-                        # Try direct IP
-                        curl -k -v http://10.42.231.176:8084/applications/e-test
-                        
-                        # Try service name
-                        curl -k -v http://spin-gate.spinnaker.svc.cluster.local:8084/applications/e-test
-                        
-                        # Try with internal DNS
-                        curl -k -v http://spin-gate:8084/applications/e-test
+                        # Try with x-spinnaker-user header
+                        curl -k -v \
+                        -H 'x-spinnaker-user: jenkins' \
+                        -H 'Content-Type: application/json' \
+                        http://spin-gate.spinnaker.svc.cluster.local:8084/applications/e-test
                     """
                 }
             }
@@ -44,6 +41,7 @@ pipeline {
                         curl -k -v -X POST \
                         -H 'Content-Type: application/json' \
                         -H 'Accept: application/json' \
+                        -H 'x-spinnaker-user: jenkins' \
                         --data '{
                             "application": "e-test",
                             "type": "manual",
@@ -51,7 +49,7 @@ pipeline {
                                 "docker_tag": "${BUILD_NUMBER}"
                             }
                         }' \
-                        http://spin-gate.spinnaker:8084/pipelines/e-test/trigger
+                        http://spin-gate.spinnaker.svc.cluster.local:8084/pipelines/e-test/trigger
                     """
                 }
             }

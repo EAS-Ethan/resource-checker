@@ -37,9 +37,9 @@ pipeline {
             steps {
                 script {
                     sh """
-                        curl -X POST \
+                        curl -k -v -X POST \
                         -H "Content-Type: application/json" \
-                        -d '{"parameters": {"docker_tag": "${BUILD_NUMBER}"}}' \
+                        -d '{"application": "e-test", "parameters": {"docker_tag": "${BUILD_NUMBER}"}}' \
                         https://spinnaker.dev.clusters.easlab.co.uk:8084/pipelines/trigger
                     """
                 }

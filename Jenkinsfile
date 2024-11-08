@@ -2,30 +2,27 @@ pipeline {
     agent any
     
     environment {
-        SPINNAKER_GATE = "http://spin-gate.spinnaker.svc.cluster.local:8084"
-        GITHUB_CLIENT_ID = 'Ov23liQhU9kuBlREgxX5'
-        GITHUB_CLIENT_SECRET = credentials('github-oauth-secret')
+        SPINNAKER_GATE = "https://gate.spinnaker.dev.clusters.easlab.co.uk"
+        GITHUB_TOKEN = credentials('github-oauth-token')
     }
     
     stages {
         stage('Trigger Spinnaker Pipeline') {
             steps {
                 script {
-                    // First, get an OAuth token from GitHub
-                    def tokenResponse = sh(script: """
-                        curl -s -X POST \
-                        -H 'Accept: application/json' \
-                        -d 'client_id=${GITHUB_CLIENT_ID}&client_secret=${GITHUB_CLIENT_SECRET}&scope=user:email' \
-                        'https://github.com/login/oauth/access_token'
-                    """, returnStdout: true).trim()
-                    
-                    // Use the token to authenticate with Spinnaker
+                    // First get a session cookie
                     sh """
+                        # Get session cookie
+                        COOKIE=\$(curl -k -s -i -X GET \
+                        -H 'Authorization: token ${GITHUB_TOKEN}' \
+                        ${SPINNAKER_GATE}/login \
+                        | grep -i 'set-cookie' | cut -d' ' -f2)
+                        
+                        # Trigger pipeline with session cookie
                         curl -k -v -X POST \
                         -H 'Content-Type: application/json' \
                         -H 'Accept: application/json' \
-                        -H 'Authorization: Bearer ${tokenResponse}' \
-                        -H 'X-SPINNAKER-USER: jenkins' \
+                        -H 'Cookie: \${COOKIE}' \
                         --data '{
                             "application": "e-test",
                             "type": "manual",
@@ -33,7 +30,7 @@ pipeline {
                                 "docker_tag": "${BUILD_NUMBER}"
                             }
                         }' \
-                        ${SPINNAKER_GATE}/pipelines/e-test/trigger
+                        ${SPINNAKER_GATE}/pipelines/01JC5KJZ4F5QVYW4EK671YHRGN
                     """
                 }
             }

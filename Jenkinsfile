@@ -4,6 +4,7 @@ pipeline {
     environment {
         DOCKER_HUB_CREDS = credentials('docker-hub-credentials-ethan')
         DOCKER_IMAGE = "ethanwillseas/resource-checker"
+        DOCKER_HOST = 'unix:///var/run/docker.sock'
     }
     
     stages {
@@ -19,23 +20,12 @@ pipeline {
             }
         }
         
-        // stage('Validate Resources') {
-        //     steps {
-        //         script {
-        //             // Run the Groovy resource checker
-        //             sh 'groovy a.groovy'
-        //         }
-        //     }
-        // }
-        
         stage('Build & Push') {
             steps {
                 script {
                     // Build
                     sh "docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ."
-                    sh "docker tag ${DOCKER_IMAGE}:${BUILD_NUMBER} ${DOCKER_IMAGE}:latest"
-                    
-                    // Push
+                    sh "docker tag ${DOCKER_IMAGE}:${BUILD_NUMBER} ${DOCKER_IMAGE}:latest"                    // Push
                     sh "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
                     sh "docker push ${DOCKER_IMAGE}:latest"
                 }

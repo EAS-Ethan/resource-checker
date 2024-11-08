@@ -3,8 +3,7 @@ pipeline {
     
     environment {
         SPINNAKER_GATE = "https://gate.spinnaker.dev.clusters.easlab.co.uk"
-        SPINNAKER_DECK = "https://deck.spinnaker.dev.clusters.easlab.co.uk"
-        GITHUB_TOKEN = credentials('github-oauth-token')  // Create this in Jenkins
+        GITHUB_OAUTH = credentials('github-oauth-creds')  // clientId:clientSecret format
     }
     
     stages {
@@ -12,13 +11,30 @@ pipeline {
             steps {
                 script {
                     sh """
+                        # Step 1: Get OAuth token from GitHub
+                        OAUTH_RESPONSE=\$(curl -s -X POST \
+                        'https://github.com/login/oauth/access_token' \
+                        -H 'Accept: application/json' \
+                        -d client_id=${GITHUB_OAUTH_USR} \
+                        -d client_secret=${GITHUB_OAUTH_PSW} \
+                        -d scope='user:email read:org')
+                        
+                        ACCESS_TOKEN=\$(echo \$OAUTH_RESPONSE | grep -o '"access_token":"[^"]*' | cut -d'"' -f4)
+                        
+                        # Step 2: Exchange GitHub token for Spinnaker session
+                        SESSION_RESPONSE=\$(curl -k -s -i \
+                        -H 'Authorization: Bearer \$ACCESS_TOKEN' \
+                        ${SPINNAKER_GATE}/login)
+                        
+                        SESSION_COOKIE=\$(echo "\$SESSION_RESPONSE" | grep -i 'set-cookie' | cut -d' ' -f2)
+                        
+                        # Step 3: Trigger pipeline with session cookie
                         curl -k -v -X POST \
                         -H 'Content-Type: application/json' \
                         -H 'Accept: application/json' \
-                        -H 'Origin: ${SPINNAKER_DECK}' \
-                        -H 'Referer: ${SPINNAKER_DECK}' \
-                        -H 'Authorization: token ${GITHUB_TOKEN}' \
-                        -H 'X-SPINNAKER-USER: jenkins' \
+                        -H 'Origin: https://deck.spinnaker.dev.clusters.easlab.co.uk' \
+                        -H 'Referer: https://deck.spinnaker.dev.clusters.easlab.co.uk' \
+                        -H "Cookie: \$SESSION_COOKIE" \
                         --data '{
                             "application": "e-test",
                             "type": "manual",

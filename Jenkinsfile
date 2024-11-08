@@ -4,7 +4,6 @@ pipeline {
     environment {
         DOCKER_HUB_CREDS = credentials('docker-hub-credentials-ethan')
         DOCKER_IMAGE = "ethanwillseas/resource-checker"
-        DOCKER_HOST = 'unix:///var/run/docker.sock'
     }
     
     stages {
@@ -25,7 +24,9 @@ pipeline {
                 script {
                     // Build
                     sh "docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ."
-                    sh "docker tag ${DOCKER_IMAGE}:${BUILD_NUMBER} ${DOCKER_IMAGE}:latest"                    // Push
+                    sh "docker tag ${DOCKER_IMAGE}:${BUILD_NUMBER} ${DOCKER_IMAGE}:latest"
+                    
+                    // Push
                     sh "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
                     sh "docker push ${DOCKER_IMAGE}:latest"
                 }
@@ -35,7 +36,6 @@ pipeline {
         stage('Trigger Spinnaker Pipeline') {
             steps {
                 script {
-                    // Trigger Spinnaker pipeline
                     sh """
                         curl -X POST \
                         -H "Content-Type: application/json" \
